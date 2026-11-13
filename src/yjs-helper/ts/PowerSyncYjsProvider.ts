@@ -3,7 +3,12 @@ import { ObservableV2 } from 'lib0/observable';
 import { CommonPowerSyncDatabase } from '@powersync/web';
 
 import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
-import { YjsSnapshotsTableRow, YjsUpdatesTableRow } from './yjs-local-tables';
+import {
+  YJS_SNAPSHOTS_TABLE_NAME,
+  YJS_UPDATES_TABLE_NAME,
+  YjsSnapshotsTableRow,
+  YjsUpdatesTableRow
+} from './yjs-local-tables';
 
 export interface PowerSyncYjsEvents {
   /**
@@ -44,7 +49,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
           SELECT
             *
           FROM
-            yjs_updates
+            ${YJS_UPDATES_TABLE_NAME}
           WHERE
             document_id = ?
         `,
@@ -57,7 +62,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
           SELECT
             *
           FROM
-            yjs_snapshots
+            ${YJS_SNAPSHOTS_TABLE_NAME}
           WHERE
             document_id = ?
         `,
@@ -141,7 +146,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     await this.db.execute(
       /* sql */ `
         INSERT INTO
-          yjs_updates (id, document_id, update_b64)
+          ${YJS_UPDATES_TABLE_NAME} (id, document_id, update_b64)
         VALUES
           (uuid (), ?, ?)
       `,
@@ -166,7 +171,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
   async deleteData() {
     await this.db.execute(
       /* sql */ `
-        DELETE FROM yjs_updates
+        DELETE FROM ${YJS_UPDATES_TABLE_NAME}
         WHERE
           document_id = ?
       `,
@@ -174,7 +179,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     );
     await this.db.execute(
       /* sql */ `
-        DELETE FROM yjs_snapshots
+        DELETE FROM ${YJS_SNAPSHOTS_TABLE_NAME}
         WHERE
           document_id = ?
       `,

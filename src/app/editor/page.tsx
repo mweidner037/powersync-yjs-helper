@@ -1,6 +1,6 @@
 import { connector, useSupabase } from '@/components/providers/SystemProvider';
 import MenuBar from '@/components/widgets/MenuBar';
-import { PowerSyncYjsProvider } from '@/yjs-helper/ts';
+import { PowerSyncYjsProvider, YJS_SNAPSHOTS_TABLE_NAME, YJS_UPDATES_TABLE_NAME } from '@/yjs-helper/ts';
 import { Box, Container, FormControlLabel, Switch, Typography } from '@mui/material';
 import { usePowerSync, useQuery, useStatus } from '@powersync/react';
 import Collaboration from '@tiptap/extension-collaboration';
@@ -50,16 +50,19 @@ export default function EditorPage() {
     connector.enableUploads = allowUploads;
   }, [allowUploads]);
 
-  // watch for total number of document updates/snapshots changing to update the counters
-  const { data: docUpdatesCount } = useQuery('SELECT COUNT(*) as total_updates FROM yjs_updates WHERE document_id=?', [
-    documentId
-  ]);
+  // Debug info about the total number of Yjs updates & snapshots.
+  // In a normal app, you won't query these tables directly,
+  // instead only using the PowerSyncYjsProvider.
+  const { data: docUpdatesCount } = useQuery(
+    `SELECT COUNT(*) as total_updates FROM ${YJS_UPDATES_TABLE_NAME} WHERE document_id=?`,
+    [documentId]
+  );
   useMemo(() => {
     if (docUpdatesCount.length > 0) setTotalYjsUpdates(docUpdatesCount[0].total_updates);
   }, [docUpdatesCount]);
 
   const { data: docSnapshotsCount } = useQuery(
-    'SELECT COUNT(*) as total_snapshots FROM yjs_snapshots WHERE document_id=?',
+    `SELECT COUNT(*) as total_snapshots FROM ${YJS_SNAPSHOTS_TABLE_NAME} WHERE document_id=?`,
     [documentId]
   );
   useMemo(() => {

@@ -1,6 +1,6 @@
 import {
-  AbstractPowerSyncDatabase,
   BaseObserver,
+  CommonPowerSyncDatabase,
   CrudEntry,
   PowerSyncBackendConnector,
   UpdateType
@@ -66,7 +66,7 @@ export class SupabaseConnector extends BaseObserver<SupabaseConnectorListener> i
     };
   }
 
-  async uploadData(database: AbstractPowerSyncDatabase): Promise<void> {
+  async uploadData(database: CommonPowerSyncDatabase): Promise<void> {
     if (!this.enableUploads) {
       console.log('Skipping uploadData because uploads were disabled manually');
       return;
