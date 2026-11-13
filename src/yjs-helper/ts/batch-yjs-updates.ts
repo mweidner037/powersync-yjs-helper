@@ -34,7 +34,7 @@ export function batchYjsUpdates(crud: CrudEntry[]): CrudEntry[] {
       yjsUpdatesByDocId.set(docId, docUpdates);
     }
 
-    docUpdates.updates.push(entry.opData!['update_b64']);
+    docUpdates.updates.push(entry.opData!['fragment_b64']);
   }
 
   if (yjsUpdatesByDocId.size === 0) {
@@ -65,13 +65,15 @@ export function batchYjsUpdates(crud: CrudEntry[]): CrudEntry[] {
       // with a new clientId, instead of just reusing this object.
       batchedCrud.push({
         ...firstEntry,
-        opData: { ...firstEntry.opData, update_b64: fragments[i], fragment_index: i, fragment_count: fragments.length }
+        opData: {
+          ...firstEntry.opData,
+          fragment_b64: fragments[i],
+          fragment_index: i,
+          fragment_count: fragments.length
+        }
       });
     }
   }
-
-  // TODO: Instead of a custom function to accept the binary, just store the base64 string.
-  // Update schemas x3 and sync rule conversion.
 
   // 3. Return non-Yjs entries followed by the batched entries.
   // We do non-Yjs entries first because a Yjs update is more likely

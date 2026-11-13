@@ -96,7 +96,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
            * handler creating a new `document_update` record since we mark the `origin`
            * here and check the `origin` in `_storeUpdate`.
            */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.update_b64), origin);
+          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64), origin);
         }
         if (!synced) {
           synced = true;
@@ -118,7 +118,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
            * handler creating a new `document_update` record since we mark the `origin`
            * here and check the `origin` in `_storeUpdate`.
            */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.snapshot_b64), origin);
+          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64), origin);
         }
         if (!synced) {
           synced = true;
@@ -149,12 +149,13 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
           ${YJS_UPDATES_TABLE_NAME} (
             id,
             document_id,
-            update_b64,
+            update_id,
+            fragment_b64,
             fragment_index,
             fragment_count
           )
         VALUES
-          (uuid (), ?, ?, 0, 1)
+          (uuid (), ?, uuid (), 0, 1)
       `,
       [this.documentId, Uint8ArrayTob64(update)]
     );

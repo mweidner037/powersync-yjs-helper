@@ -19,13 +19,15 @@ export function yjsLocalTables() {
   return {
     [YJS_UPDATES_TABLE_NAME]: new Table({
       document_id: column.text,
-      update_b64: column.text,
+      update_id: column.text,
+      fragment_b64: column.text,
       fragment_index: column.integer,
       fragment_count: column.integer
     }),
     [YJS_SNAPSHOTS_TABLE_NAME]: new Table({
       document_id: column.text,
-      snapshot_b64: column.text,
+      snapshot_id: column.text,
+      fragment_b64: column.text,
       fragment_index: column.integer,
       fragment_count: column.integer
     })
