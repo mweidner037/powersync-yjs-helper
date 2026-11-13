@@ -3,7 +3,7 @@ import * as Y from 'yjs';
 import { b64ToUint8Array, Uint8ArrayTob64 } from '@/library/binary-utils';
 import { AbstractPowerSyncDatabase } from '@powersync/web';
 import { ObservableV2 } from 'lib0/observable';
-import { DocumentUpdates } from './AppSchema';
+import { Database } from './AppSchema';
 
 export interface PowerSyncYjsEvents {
   /**
@@ -17,7 +17,8 @@ export interface PowerSyncYjsEvents {
 /**
  * Configure bidirectional sync for a Yjs document with a PowerSync database.
  *
- * Updates are stored in the `document_updates` table in the database.
+ * Updates are stored in the `yjs_updates` table in the database.
+ * They are read from that table and `yjs_snapshots`.
  *
  * @param ydoc
  * @param db
@@ -33,29 +34,44 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
   ) {
     super();
     /**
-     * Watch for changes to the `document_updates` table for this document.
+     * Watch for changes to the yjsLocalTables() for this document.
      * This will be used to apply updates from other editors.
      * When we received an added item we apply the update to the Yjs document.
      */
     const updateQuery = db
-      .query<DocumentUpdates>({
+      .query<Database['yjs_updates']>({
         sql: /* sql */ `
           SELECT
             *
           FROM
-            document_updates
+            yjs_updates
           WHERE
             document_id = ?
         `,
         parameters: [documentId]
       })
       .differentialWatch();
+    const snapshotQuery = db
+      .query<Database['yjs_snapshots']>({
+        sql: /* sql */ `
+          SELECT
+            *
+          FROM
+            yjs_snapshots
+          WHERE
+            document_id = ?
+        `,
+        parameters: [documentId]
+      })
+      .differentialWatch();
+    // TODO: snapshot query too
 
     this.abortController.signal.addEventListener(
       'abort',
       () => {
         // Stop the watch query when the abort signal is triggered
         updateQuery.close();
+        snapshotQuery.close();
       },
       { once: true }
     );
@@ -87,6 +103,28 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
         console.error('Error in PowerSyncYjsProvider update query:', error);
       }
     });
+    snapshotQuery.registerListener({
+      onDiff: async (diff) => {
+        for (const added of diff.added) {
+          /**
+           * Local document updates get stored to the database and synced.
+           *
+           * These updates here originate from syncing remote updates.
+           * Applying these updates to YJS should not result in the `_storeUpdate`
+           * handler creating a new `document_update` record since we mark the `origin`
+           * here and check the `origin` in `_storeUpdate`.
+           */
+          Y.applyUpdateV2(doc, b64ToUint8Array(added.snapshot_b64), origin);
+        }
+        if (!synced) {
+          synced = true;
+          this.emit('synced', []);
+        }
+      },
+      onError: (error) => {
+        console.error('Error in PowerSyncYjsProvider update query:', error);
+      }
+    });
 
     doc.on('updateV2', this._storeUpdate);
     doc.on('destroy', this.destroy);
@@ -101,7 +139,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     await this.db.execute(
       /* sql */ `
         INSERT INTO
-          document_updates (id, document_id, update_b64)
+          yjs_updates (id, document_id, update_b64)
         VALUES
           (uuid (), ?, ?)
       `,
@@ -126,7 +164,15 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
   async deleteData() {
     await this.db.execute(
       /* sql */ `
-        DELETE FROM document_updates
+        DELETE FROM yjs_updates
+        WHERE
+          document_id = ?
+      `,
+      [this.documentId]
+    );
+    await this.db.execute(
+      /* sql */ `
+        DELETE FROM yjs_snapshots
         WHERE
           document_id = ?
       `,
