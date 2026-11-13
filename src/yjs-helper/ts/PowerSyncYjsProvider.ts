@@ -152,13 +152,13 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
           ${YJS_OPERATIONS_TABLE_NAME} (
             id,
             document_id,
-            update_id,
+            operation_id,
             fragment_b64,
             fragment_index,
             fragment_count
           )
         VALUES
-          (uuid (), ?, uuid (), 0, 1)
+          (uuid (), ?, uuid (), ?, 0, 1)
       `,
       [this.documentId, Uint8ArrayTob64(update)]
     );
