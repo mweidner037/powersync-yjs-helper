@@ -4,11 +4,11 @@ import { YJS_UPDATES_TABLE_NAME } from './yjs-local-tables';
 import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
 
 /**
- * The size of an update fragment, in bytes.
+ * Default value of fragmentSize.
  *
  * Note that the actual row is slightly larger.
  */
-const FRAGMENT_SIZE = 1_000_000;
+const DEFAULT_FRAGMENT_SIZE = 1_000_000;
 
 /**
  * Batches together all local Yjs updates in `crud` into a single update
@@ -17,8 +17,14 @@ const FRAGMENT_SIZE = 1_000_000;
  * followed by the batched Yjs entries.
  *
  * Apply this to `transaction.crud` at the start of your `uploadData` function.
+ *
+ * @param options.fragmentSize The maximum size of a fragment,
+ * in bytes (technically, base64 chars). Note that max-size rows
+ * will be slightly larger due to metadata. Default: 1 million.
  */
-export function batchYjsUpdates(crud: CrudEntry[]): CrudEntry[] {
+export function batchYjsUpdates(crud: CrudEntry[], options: { fragmentSize?: number } = {}): CrudEntry[] {
+  const fragmentSize = options.fragmentSize ?? DEFAULT_FRAGMENT_SIZE;
+
   // 1. Extract all Yjs updates, grouped by document_id.
 
   // Maps document_id -> { first CrudEntry, all binary updates }.
@@ -56,8 +62,8 @@ export function batchYjsUpdates(crud: CrudEntry[]): CrudEntry[] {
     // Large updates are possible if an app (ill-advisedly) allows pasting base64
     // images/assets into the editor.
     const fragments: string[] = [];
-    for (let charI = 0; charI < mergedUpdateB64.length; charI += FRAGMENT_SIZE) {
-      fragments.push(mergedUpdateB64.slice(charI, charI + FRAGMENT_SIZE));
+    for (let charI = 0; charI < mergedUpdateB64.length; charI += fragmentSize) {
+      fragments.push(mergedUpdateB64.slice(charI, charI + fragmentSize));
     }
 
     for (let i = 0; i < fragments.length; i++) {
