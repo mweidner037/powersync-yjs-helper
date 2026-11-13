@@ -1,11 +1,42 @@
-
--- demo-specific setup
-CREATE TABLE documents(
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
+-- Example complete config (including documents table) for the demo.
+CREATE TABLE documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
   title VARCHAR(255),
-  created_at timestamptz DEFAULT now()
+  created_at timestamptz DEFAULT now ()
 );
-DROP PUBLICATION IF EXISTS powersync;
-CREATE PUBLICATION powersync FOR TABLE documents, document;
 
--- TODO: Also run the SQL in yjs-helper/yjs_tables.sql
+DROP PUBLICATION IF EXISTS powersync;
+
+CREATE PUBLICATION powersync FOR TABLE documents;
+
+CREATE TABLE yjs_operations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+  document_id UUID NOT NULL,
+  -- Shared between fragments of the same operation.
+  operation_id UUID NOT NULL,
+  fragment_b64 TEXT NOT NULL,
+  -- For operations that are too large to fit in one row. Usually just 0/1.
+  fragment_index INTEGER NOT NULL,
+  fragment_count INTEGER NOT NULL
+  -- TODO: columns to help us figure out if we’re missing a snapshot
+  -- and need to fetch it?
+  -- I don’t think we need metadata about initiating user, creation time,
+  -- etc. given that these operations are ephemeral anyway.
+);
+
+ALTER PUBLICATION powersync ADD TABLE yjs_operations;
+
+CREATE TABLE yjs_snapshots (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+  document_id UUID NOT NULL,
+  -- Shared between fragments of the same snapshot.
+  snapshot_id UUID NOT NULL,
+  fragment_b64 TEXT NOT NULL,
+  -- For snapshots that are too large to fit in one row.
+  fragment_index INTEGER NOT NULL,
+  fragment_count INTEGER NOT NULL
+  -- TODO: columns with info about which operations are included?
+  -- Order/timing info?
+);
+
+ALTER PUBLICATION powersync ADD TABLE yjs_snapshots;

@@ -1,10 +1,20 @@
 config:
   edition: 3
 
+# Example complete config (including documents table) for the demo.
 streams:
   documents:
-    auto_subscribe: true
     queries:
-      - SELECT * FROM documents
-  # TODO: Also add the streams from yjs-helper/yjs-sync-streams.yaml,
-  # uncommenting the default document_ids selectors.
+      - SELECT * FROM documents WHERE id = connection.parameter('yjs_document_id')
+  yjs_operation_stream:
+    priority: 0
+    with:
+      document_ids: SELECT id FROM documents WHERE id = subscription.parameter('yjs_document_id')
+    queries:
+      - SELECT * FROM yjs_operations WHERE document_id IN document_ids
+  yjs_snapshot_stream:
+    priority: 0
+    with:
+      document_ids: SELECT id FROM documents WHERE id = subscription.parameter('yjs_document_id')
+    queries:
+      - SELECT * FROM yjs_snapshots WHERE document_id IN document_ids
