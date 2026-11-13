@@ -1,3 +1,9 @@
+# PowerSync Yjs Helper Prototype
+
+Fork of [yjs-react-supabase-text-collab](https://github.com/powersync-ja/powersync-js/tree/main/demos/yjs-react-supabase-text-collab) with key parts separated into a prototype "Yjs Helper Package". See [./src/yjs-helper/](./src/yjs-helper/).
+
+Original readme below (needs updating).
+
 # PowerSync Yjs Document Collaboration Demo
 
 This is a simple CRDT text collaboration demo powered by [Yjs](https://github.com/yjs/yjs) and [Tiptap](https://tiptap.dev/) which uses [PowerSync](https://www.powersync.com/) as both the persistence and connection provider. This means that the Yjs CRDT data structures are stored in Postgres. Conflicts are automatically resolved using CRDTs.

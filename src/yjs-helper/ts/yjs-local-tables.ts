@@ -8,7 +8,7 @@ export const YJS_SNAPSHOTS_TABLE_NAME = 'yjs_snapshots';
  *
  * Add them to your Schema:
  * ```ts
- * const AppSchema = new Schema({
+ * export const AppSchema = new Schema({
  *   // Your other tables...
  *
  *   ...yjsLocalTables()
