@@ -1,6 +1,8 @@
 # PowerSync Yjs Helper Prototype
 
-Fork of [yjs-react-supabase-text-collab](https://github.com/powersync-ja/powersync-js/tree/main/demos/yjs-react-supabase-text-collab) with key parts separated into a prototype "Yjs Helper Package". See [./src/yjs-helper/](./src/yjs-helper/). [Complete diff](https://github.com/mweidner037/powersync-yjs-helper/compare/13ffbfd546c20f6077d26dda41688136b62bee4c...main)
+Fork of [yjs-react-supabase-text-collab](https://github.com/powersync-ja/powersync-js/tree/main/demos/yjs-react-supabase-text-collab) with key parts separated into a prototype "Yjs Helper Package". See [./src/yjs-helper/](./src/yjs-helper/).
+
+[Complete diff from original demo](https://github.com/mweidner037/powersync-yjs-helper/compare/13ffbfd546c20f6077d26dda41688136b62bee4c...main)
 
 Original readme below (needs updating).
 
