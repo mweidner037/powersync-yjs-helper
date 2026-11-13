@@ -146,9 +146,15 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     await this.db.execute(
       /* sql */ `
         INSERT INTO
-          ${YJS_UPDATES_TABLE_NAME} (id, document_id, update_b64)
+          ${YJS_UPDATES_TABLE_NAME} (
+            id,
+            document_id,
+            update_b64,
+            fragment_index,
+            fragment_count
+          )
         VALUES
-          (uuid (), ?, ?)
+          (uuid (), ?, ?, 0, 1)
       `,
       [this.documentId, Uint8ArrayTob64(update)]
     );
