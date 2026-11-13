@@ -1,9 +1,9 @@
 import * as Y from 'yjs';
-
-import { b64ToUint8Array, Uint8ArrayTob64 } from '@/library/binary-utils';
-import { AbstractPowerSyncDatabase } from '@powersync/web';
 import { ObservableV2 } from 'lib0/observable';
-import { Database } from './AppSchema';
+import { CommonPowerSyncDatabase } from '@powersync/web';
+
+import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
+import { YjsSnapshotsTableRow, YjsUpdatesTableRow } from './yjs-local-tables';
 
 export interface PowerSyncYjsEvents {
   /**
@@ -29,7 +29,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
 
   constructor(
     public readonly doc: Y.Doc,
-    public readonly db: AbstractPowerSyncDatabase,
+    public readonly db: CommonPowerSyncDatabase,
     public readonly documentId: string
   ) {
     super();
@@ -39,7 +39,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
      * When we received an added item we apply the update to the Yjs document.
      */
     const updateQuery = db
-      .query<Database['yjs_updates']>({
+      .query<YjsUpdatesTableRow>({
         sql: /* sql */ `
           SELECT
             *
@@ -52,7 +52,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
       })
       .differentialWatch();
     const snapshotQuery = db
-      .query<Database['yjs_snapshots']>({
+      .query<YjsSnapshotsTableRow>({
         sql: /* sql */ `
           SELECT
             *
@@ -64,7 +64,6 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
         parameters: [documentId]
       })
       .differentialWatch();
-    // TODO: snapshot query too
 
     this.abortController.signal.addEventListener(
       'abort',

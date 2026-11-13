@@ -1,4 +1,4 @@
-import { column, Table } from '@powersync/web';
+import { column, RowType, Table } from '@powersync/web';
 
 /**
  * Local PowerSync tables for the Yjs helper package.
@@ -28,3 +28,6 @@ export function yjsLocalTables() {
     })
   };
 }
+
+export type YjsUpdatesTableRow = RowType<ReturnType<typeof yjsLocalTables>['yjs_updates']>;
+export type YjsSnapshotsTableRow = RowType<ReturnType<typeof yjsLocalTables>['yjs_snapshots']>;
