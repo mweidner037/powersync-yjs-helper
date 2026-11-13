@@ -1,6 +1,6 @@
 import { connector, useSupabase } from '@/components/providers/SystemProvider';
 import MenuBar from '@/components/widgets/MenuBar';
-import { PowerSyncYjsProvider } from '@/yjs-helper/ts/PowerSyncYjsProvider';
+import { PowerSyncYjsProvider } from '@/yjs-helper/ts';
 import { Box, Container, FormControlLabel, Switch, Typography } from '@mui/material';
 import { usePowerSync, useQuery, useStatus } from '@powersync/react';
 import Collaboration from '@tiptap/extension-collaboration';

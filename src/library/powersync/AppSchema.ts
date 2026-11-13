@@ -1,4 +1,4 @@
-import { yjsLocalTables } from '@/yjs-helper/ts/yjs-local-tables';
+import { yjsLocalTables } from '@/yjs-helper/ts';
 import { column, Schema, Table } from '@powersync/web';
 
 const documents = new Table({
