@@ -25,7 +25,8 @@ export default function EditorPage() {
     window.localStorage.setItem('lastDocumentId', documentId!);
   }
 
-  const [totalDocUpdates, setTotalDocUpdates] = useState(0);
+  const [totalYjsUpdates, setTotalYjsUpdates] = useState(0);
+  const [totalYjsSnapshots, setTotalYjsSnapshots] = useState(0);
   const [allowUploads, setAllowUploads] = useState(connector.enableUploads);
 
   const ydoc = useMemo(() => {
@@ -37,7 +38,7 @@ export default function EditorPage() {
     // Only sync changes for this document
     powerSync.connect(supabase!, {
       params: {
-        document_id: documentId!
+        yjs_document_id: documentId!
       }
     });
     return () => {
@@ -49,14 +50,21 @@ export default function EditorPage() {
     connector.enableUploads = allowUploads;
   }, [allowUploads]);
 
-  // watch for total number of document updates changing to update the counter
-  const { data: docUpdatesCount } = useQuery(
-    'SELECT COUNT(*) as total_updates FROM document_updates WHERE document_id=?',
+  // watch for total number of document updates/snapshots changing to update the counters
+  const { data: docUpdatesCount } = useQuery('SELECT COUNT(*) as total_updates FROM yjs_updates WHERE document_id=?', [
+    documentId
+  ]);
+  useMemo(() => {
+    if (docUpdatesCount.length > 0) setTotalYjsUpdates(docUpdatesCount[0].total_updates);
+  }, [docUpdatesCount]);
+
+  const { data: docSnapshotsCount } = useQuery(
+    'SELECT COUNT(*) as total_snapshots FROM yjs_snapshots WHERE document_id=?',
     [documentId]
   );
   useMemo(() => {
-    if (docUpdatesCount.length > 0) setTotalDocUpdates(docUpdatesCount[0].total_updates);
-  }, [docUpdatesCount]);
+    if (docSnapshotsCount.length > 0) setTotalYjsSnapshots(docSnapshotsCount[0].total_snapshots);
+  }, [docSnapshotsCount]);
 
   // tiptap editor setup
   const editor = useEditor({
@@ -100,7 +108,7 @@ export default function EditorPage() {
           </div>
           <Box sx={{ mt: 1 }}>
             <Typography variant="caption" display="block" gutterBottom>
-              {totalDocUpdates} total edit(s) in this document.
+              {totalYjsUpdates} uncompacted updates, {totalYjsSnapshots} snapshots.
             </Typography>
             <FormControlLabel
               control={<Switch checked={allowUploads} onChange={(e) => setAllowUploads(e.target.checked)} />}
