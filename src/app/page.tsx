@@ -26,7 +26,7 @@ export default function EntryPage() {
       const results = await powerSync.execute('INSERT INTO documents(id, title) VALUES(uuid(), ?) RETURNING id', [
         'Test Document ' + (1000 + Math.floor(Math.random() * 8999))
       ]);
-      const documentId = results.rows!.item(0).id;
+      const documentId = (results.rows as any).item(0).id;
 
       // redirect user to the document
       lastDocumentId = documentId;

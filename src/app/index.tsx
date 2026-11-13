@@ -5,7 +5,7 @@ import { SystemProvider } from '../components/providers/SystemProvider';
 import { ThemeProviderContainer } from '../components/providers/ThemeProviderContainer';
 import { router } from './router';
 
-import 'lato-font';
+// import 'lato-font';
 import './globals.css';
 
 const root = createRoot(document.getElementById('app')!);

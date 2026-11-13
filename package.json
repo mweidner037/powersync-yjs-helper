@@ -41,13 +41,14 @@
     "@types/uuid": "9.0.8",
     "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "prettier-plugin-embed": "^0.4.15",
     "prettier-plugin-sql": "^0.18.1",
-    "postcss": "^8.4.35",
     "sass-embedded": "^1.93.3",
     "style-loader": "^3.3.4",
     "supabase": "1.142.2",
+    "typescript": "^7.0.2",
     "vite": "^5.1.6",
     "vite-plugin-pwa": "^0.19.2"
   }
