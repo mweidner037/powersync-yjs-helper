@@ -9,6 +9,7 @@ import {
   YjsSnapshotsTableRow,
   YjsUpdatesTableRow
 } from './yjs-local-tables';
+import { DeFragmenter } from './defragmenter';
 
 export interface PowerSyncYjsEvents {
   /**
@@ -83,20 +84,20 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     this._storeUpdate = this._storeUpdate.bind(this);
     this.destroy = this.destroy.bind(this);
 
+    /**
+     * Local document updates get stored to the database and synced.
+     *
+     * These updates here originate from syncing remote updates.
+     * Applying these updates to YJS should not result in the `_storeUpdate`
+     * handler creating a new `document_update` record since we mark the `origin`
+     * here and check the `origin` in `_storeUpdate`.
+     */
+    const defragmenter = new DeFragmenter((update) => Y.applyUpdateV2(doc, update, this));
     let synced = false;
-    const origin = this;
     updateQuery.registerListener({
       onDiff: async (diff) => {
         for (const added of diff.added) {
-          /**
-           * Local document updates get stored to the database and synced.
-           *
-           * These updates here originate from syncing remote updates.
-           * Applying these updates to YJS should not result in the `_storeUpdate`
-           * handler creating a new `document_update` record since we mark the `origin`
-           * here and check the `origin` in `_storeUpdate`.
-           */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64!), origin);
+          defragmenter.addFragment(added.update_id!, added.fragment_b64!, added.fragment_index!, added.fragment_count!);
         }
         if (!synced) {
           synced = true;
@@ -110,15 +111,12 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     snapshotQuery.registerListener({
       onDiff: async (diff) => {
         for (const added of diff.added) {
-          /**
-           * Local document updates get stored to the database and synced.
-           *
-           * These updates here originate from syncing remote updates.
-           * Applying these updates to YJS should not result in the `_storeUpdate`
-           * handler creating a new `document_update` record since we mark the `origin`
-           * here and check the `origin` in `_storeUpdate`.
-           */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64!), origin);
+          defragmenter.addFragment(
+            added.snapshot_id!,
+            added.fragment_b64!,
+            added.fragment_index!,
+            added.fragment_count!
+          );
         }
         if (!synced) {
           synced = true;
