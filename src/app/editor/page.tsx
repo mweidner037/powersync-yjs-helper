@@ -25,7 +25,7 @@ export default function EditorPage() {
     window.localStorage.setItem('lastDocumentId', documentId!);
   }
 
-  const [totalYjsUpdates, setTotalYjsUpdates] = useState(0);
+  const [totalYjsOperations, setTotalYjsOperations] = useState(0);
   const [totalYjsSnapshots, setTotalYjsSnapshots] = useState(0);
   const [allowUploads, setAllowUploads] = useState(connector.enableUploads);
 
@@ -53,13 +53,13 @@ export default function EditorPage() {
   // Debug info about the total number of Yjs updates & snapshots.
   // In a normal app, you won't query these tables directly,
   // instead only using the PowerSyncYjsProvider.
-  const { data: docUpdatesCount } = useQuery(
+  const { data: docOperationsCount } = useQuery(
     `SELECT COUNT(*) as total_updates FROM ${YJS_OPERATIONS_TABLE_NAME} WHERE document_id=?`,
     [documentId]
   );
   useMemo(() => {
-    if (docUpdatesCount.length > 0) setTotalYjsUpdates(docUpdatesCount[0].total_updates);
-  }, [docUpdatesCount]);
+    if (docOperationsCount.length > 0) setTotalYjsOperations(docOperationsCount[0].total_updates);
+  }, [docOperationsCount]);
 
   const { data: docSnapshotsCount } = useQuery(
     `SELECT COUNT(*) as total_snapshots FROM ${YJS_SNAPSHOTS_TABLE_NAME} WHERE document_id=?`,
@@ -111,7 +111,7 @@ export default function EditorPage() {
           </div>
           <Box sx={{ mt: 1 }}>
             <Typography variant="caption" display="block" gutterBottom>
-              {totalYjsUpdates} uncompacted updates, {totalYjsSnapshots} snapshots.
+              {totalYjsOperations} uncompacted operations, {totalYjsSnapshots} snapshots.
             </Typography>
             <FormControlLabel
               control={<Switch checked={allowUploads} onChange={(e) => setAllowUploads(e.target.checked)} />}
