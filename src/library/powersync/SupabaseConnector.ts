@@ -1,3 +1,4 @@
+import { batchYjsUpdates } from '@/yjs-helper/ts';
 import {
   BaseObserver,
   CommonPowerSyncDatabase,
@@ -78,27 +79,19 @@ export class SupabaseConnector extends BaseObserver<SupabaseConnectorListener> i
       return;
     }
 
-    const updateBatch: any[] = [];
-
     let lastOp: CrudEntry | null = null;
     try {
+      const crud = batchYjsUpdates(batch.crud);
+
       // Note: If transactional consistency is important, use database functions
       // or edge functions to process the entire transaction in a single call.
-      for (const op of batch.crud) {
+      for (const op of crud) {
         lastOp = op;
         const table = this.client.from(op.table);
         let result: any;
         let record: any;
         if (op.op == UpdateType.PUT || op.op == UpdateType.PATCH) {
           record = { ...op.opData };
-        }
-
-        if (op.op == UpdateType.PUT && op.table == 'document_updates') {
-          updateBatch.push({
-            ...record,
-            id: op.id
-          });
-          continue;
         }
 
         switch (op.op) {
@@ -114,16 +107,6 @@ export class SupabaseConnector extends BaseObserver<SupabaseConnectorListener> i
             break;
         }
 
-        if (result.error) {
-          console.error(result.error);
-          result.error.message = `Could not update Supabase. Received error: ${result.error.message}`;
-          throw result.error;
-        }
-      }
-
-      if (updateBatch.length > 0) {
-        console.log('inserting batch of size', updateBatch.length);
-        const result = await this.client.rpc('insert_document_updates', { batch: JSON.stringify(updateBatch) });
         if (result.error) {
           console.error(result.error);
           result.error.message = `Could not update Supabase. Received error: ${result.error.message}`;
