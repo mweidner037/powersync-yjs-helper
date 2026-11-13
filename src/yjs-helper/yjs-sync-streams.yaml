@@ -4,7 +4,7 @@ streams:
     with:
       document_ids: TODO # SELECT id FROM documents WHERE id = subscription.parameter('yjs_document_id')
     queries:
-      - SELECT id, document_id, update_id, fragment_b64, fragment_index, fragment_count FROM yjs_updates WHERE document_id IN document_ids
+      - SELECT id, document_id, operation_id, fragment_b64, fragment_index, fragment_count FROM yjs_operations WHERE document_id IN document_ids
   yjs_snapshot_stream:
     priority: 0
     with:

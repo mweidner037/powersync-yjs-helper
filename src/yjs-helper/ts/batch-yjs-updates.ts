@@ -1,6 +1,6 @@
 import { CrudEntry, UpdateType } from '@powersync/web';
 import * as Y from 'yjs';
-import { YJS_UPDATES_TABLE_NAME } from './yjs-local-tables';
+import { YJS_OPERATIONS_TABLE_NAME } from './yjs-local-tables';
 import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
 
 /**
@@ -93,5 +93,5 @@ export function batchYjsUpdates(crud: CrudEntry[], options: { fragmentSize?: num
 function isYjsUpdate(entry: CrudEntry): boolean {
   // Our provider only submits PUT operations. Filter on that anyway
   // in case the client is up to something.
-  return entry.table === YJS_UPDATES_TABLE_NAME && entry.op === UpdateType.PUT;
+  return entry.table === YJS_OPERATIONS_TABLE_NAME && entry.op === UpdateType.PUT;
 }

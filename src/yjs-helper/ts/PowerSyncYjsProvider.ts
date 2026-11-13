@@ -5,9 +5,9 @@ import { CommonPowerSyncDatabase } from '@powersync/web';
 import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
 import {
   YJS_SNAPSHOTS_TABLE_NAME,
-  YJS_UPDATES_TABLE_NAME,
+  YJS_OPERATIONS_TABLE_NAME,
   YjsSnapshotsTableRow,
-  YjsUpdatesTableRow
+  YjsOperationsTableRow
 } from './yjs-local-tables';
 import { DeFragmenter } from './defragmenter';
 
@@ -45,12 +45,12 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
      * When we received an added item we apply the update to the Yjs document.
      */
     const updateQuery = db
-      .query<YjsUpdatesTableRow>({
+      .query<YjsOperationsTableRow>({
         sql: /* sql */ `
           SELECT
             *
           FROM
-            ${YJS_UPDATES_TABLE_NAME}
+            ${YJS_OPERATIONS_TABLE_NAME}
           WHERE
             document_id = ?
         `,
@@ -97,7 +97,12 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     updateQuery.registerListener({
       onDiff: async (diff) => {
         for (const added of diff.added) {
-          defragmenter.addFragment(added.update_id!, added.fragment_b64!, added.fragment_index!, added.fragment_count!);
+          defragmenter.addFragment(
+            added.operation_id!,
+            added.fragment_b64!,
+            added.fragment_index!,
+            added.fragment_count!
+          );
         }
         if (!synced) {
           synced = true;
@@ -144,7 +149,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
     await this.db.execute(
       /* sql */ `
         INSERT INTO
-          ${YJS_UPDATES_TABLE_NAME} (
+          ${YJS_OPERATIONS_TABLE_NAME} (
             id,
             document_id,
             update_id,
@@ -176,7 +181,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
   async deleteData() {
     await this.db.execute(
       /* sql */ `
-        DELETE FROM ${YJS_UPDATES_TABLE_NAME}
+        DELETE FROM ${YJS_OPERATIONS_TABLE_NAME}
         WHERE
           document_id = ?
       `,

@@ -1,6 +1,6 @@
 import { connector, useSupabase } from '@/components/providers/SystemProvider';
 import MenuBar from '@/components/widgets/MenuBar';
-import { PowerSyncYjsProvider, YJS_SNAPSHOTS_TABLE_NAME, YJS_UPDATES_TABLE_NAME } from '@/yjs-helper/ts';
+import { PowerSyncYjsProvider, YJS_SNAPSHOTS_TABLE_NAME, YJS_OPERATIONS_TABLE_NAME } from '@/yjs-helper/ts';
 import { Box, Container, FormControlLabel, Switch, Typography } from '@mui/material';
 import { usePowerSync, useQuery, useStatus } from '@powersync/react';
 import Collaboration from '@tiptap/extension-collaboration';
@@ -54,7 +54,7 @@ export default function EditorPage() {
   // In a normal app, you won't query these tables directly,
   // instead only using the PowerSyncYjsProvider.
   const { data: docUpdatesCount } = useQuery(
-    `SELECT COUNT(*) as total_updates FROM ${YJS_UPDATES_TABLE_NAME} WHERE document_id=?`,
+    `SELECT COUNT(*) as total_updates FROM ${YJS_OPERATIONS_TABLE_NAME} WHERE document_id=?`,
     [documentId]
   );
   useMemo(() => {
