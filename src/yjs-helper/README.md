@@ -29,7 +29,17 @@ export const AppSchema = new Schema({
 
 ## 4. Configure uploadData Helper
 
-TODO
+In your PowerSyncBackendConnector's `uploadData` function, before uploading `CrudEntry`s, process them with `batchYjsUpdates`. For example:
+
+```ts
+const batch = await database.getCrudBatch(200);
+if (!batch) {
+  return;
+}
+const crud = batchYjsUpdates(batch.crud);
+
+// Now upload crud normally.
+```
 
 ## 5. Create PowerSyncYjsProvider and Connect
 

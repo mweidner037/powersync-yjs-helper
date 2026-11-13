@@ -74,15 +74,13 @@ export class SupabaseConnector extends BaseObserver<SupabaseConnectorListener> i
     }
 
     const batch = await database.getCrudBatch(200);
-
     if (!batch) {
       return;
     }
+    const crud = batchYjsUpdates(batch.crud);
 
     let lastOp: CrudEntry | null = null;
     try {
-      const crud = batchYjsUpdates(batch.crud);
-
       // Note: If transactional consistency is important, use database functions
       // or edge functions to process the entire transaction in a single call.
       for (const op of crud) {
