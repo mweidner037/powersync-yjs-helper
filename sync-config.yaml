@@ -4,6 +4,7 @@ config:
 # Example complete config (including documents table) for the demo.
 streams:
   documents:
+    auto_subscribe: true
     queries:
       - SELECT * FROM documents WHERE id = connection.parameter('yjs_document_id')
   yjs_operation_stream:

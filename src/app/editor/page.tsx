@@ -34,15 +34,20 @@ export default function EditorPage() {
   }, [documentId]);
 
   useEffect(() => {
+    // TODO: This should move into PowerSyncYjsProvider,
+    // unless we don't want to make assumptions about the choice of CTE.
+    const syncStreamSnapshots = powerSync.syncStream('yjs_snapshot_stream', { yjs_document_id: documentId! });
+    syncStreamSnapshots.subscribe();
+    const syncStreamOps = powerSync.syncStream('yjs_operation_stream', { yjs_document_id: documentId! });
+    syncStreamOps.subscribe();
+
     const provider = new PowerSyncYjsProvider(ydoc, powerSync, documentId!);
-    // Only sync changes for this document
-    powerSync.connect(supabase!, {
-      params: {
-        yjs_document_id: documentId!
-      }
-    });
+
     return () => {
       provider.destroy();
+
+      syncStreamSnapshots.unsubscribeAll();
+      syncStreamOps.unsubscribeAll();
     };
   }, [ydoc, powerSync]);
 

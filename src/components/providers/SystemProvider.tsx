@@ -14,6 +14,7 @@ export const powerSync = new PowerSyncDatabase({
   logger: createConsoleLogger({ minLevel: LogLevels.debug })
 });
 export const connector = new SupabaseConnector();
+powerSync.connect(connector);
 
 export const SystemProvider = ({ children }: { children: React.ReactNode }) => {
   return (
