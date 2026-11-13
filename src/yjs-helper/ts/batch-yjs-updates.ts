@@ -54,7 +54,7 @@ export function batchYjsUpdates(crud: CrudEntry[], options: { fragmentSize?: num
   const batchedCrud: CrudEntry[] = [];
   for (const { firstEntry, updates } of yjsUpdatesByDocId.values()) {
     const updatesBinary = updates.map((update) => b64ToUint8Array(update));
-    const mergedUpdateBinary = Y.mergeUpdates(updatesBinary);
+    const mergedUpdateBinary = Y.mergeUpdatesV2(updatesBinary);
     const mergedUpdateB64 = Uint8ArrayTob64(mergedUpdateBinary);
 
     // Split the update into fragments of at most 1 MB.
