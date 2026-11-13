@@ -96,7 +96,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
            * handler creating a new `document_update` record since we mark the `origin`
            * here and check the `origin` in `_storeUpdate`.
            */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64), origin);
+          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64!), origin);
         }
         if (!synced) {
           synced = true;
@@ -118,7 +118,7 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
            * handler creating a new `document_update` record since we mark the `origin`
            * here and check the `origin` in `_storeUpdate`.
            */
-          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64), origin);
+          Y.applyUpdateV2(doc, b64ToUint8Array(added.fragment_b64!), origin);
         }
         if (!synced) {
           synced = true;
