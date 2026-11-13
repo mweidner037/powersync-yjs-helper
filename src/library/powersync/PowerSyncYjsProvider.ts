@@ -136,6 +136,9 @@ export class PowerSyncYjsProvider extends ObservableV2<PowerSyncYjsEvents> {
       return;
     }
 
+    // SQLite allows strings up to 1 billion bytes, so we don't bother
+    // splitting into fragments locally. Instead, that happens in
+    // uploadData.
     await this.db.execute(
       /* sql */ `
         INSERT INTO
