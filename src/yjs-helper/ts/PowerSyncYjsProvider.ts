@@ -2,7 +2,7 @@ import * as Y from 'yjs';
 import { ObservableV2 } from 'lib0/observable';
 import { CommonPowerSyncDatabase } from '@powersync/web';
 
-import { b64ToUint8Array, Uint8ArrayTob64 } from './binary-utils';
+import { Uint8ArrayTob64 } from './binary-utils';
 import {
   YJS_SNAPSHOTS_TABLE_NAME,
   YJS_OPERATIONS_TABLE_NAME,
